@@ -8,14 +8,21 @@ import { app } from '../firebase.config';
 import Logo from '../assets/img/logo.png';
 import Avatar from '../assets/img/avatar.png';
 import { MdShoppingBasket } from 'react-icons/md';
+import { useStateValue } from '../context/StateProvider';
+import { actionType } from '../context/Reducer';
 
 export default function Header() {
     const firebaseAuth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
+    const [{user}, dispatch] = useStateValue();
+
     const login = async () => {
-        const response = await signInWithPopup(firebaseAuth, provider);
-        console.log(response);
+        const {user: {refreshToken, providerData}} = await signInWithPopup(firebaseAuth, provider);
+        dispatch({
+            type: actionType.SET_USER,
+            user: providerData[0]
+        })
     }
 
     return (
@@ -45,7 +52,7 @@ export default function Header() {
                     <div className='relative'>
                         <motion.img
                             whileTap={{ scale: 0.6 }}
-                            src={Avatar}
+                            src={user ? user.photoURL : Avatar}
                             className="w-10 min-w-[40px] min-h-[40px] hover:cursor-pointer"
                             alt="userprofile"
                             onClick={login}
