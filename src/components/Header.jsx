@@ -15,14 +15,17 @@ export default function Header() {
     const firebaseAuth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    const [{user}, dispatch] = useStateValue();
+    const [{ user }, dispatch] = useStateValue();
 
     const login = async () => {
-        const {user: {refreshToken, providerData}} = await signInWithPopup(firebaseAuth, provider);
-        dispatch({
-            type: actionType.SET_USER,
-            user: providerData[0]
-        })
+        if (!user) {
+            const { user: { refreshToken, providerData } } = await signInWithPopup(firebaseAuth, provider);
+            dispatch({
+                type: actionType.SET_USER,
+                user: providerData[0]
+            });
+            localStorage.setItem('user', JSON.stringify(providerData[0]));
+        }
     }
 
     return (
@@ -53,10 +56,14 @@ export default function Header() {
                         <motion.img
                             whileTap={{ scale: 0.6 }}
                             src={user ? user.photoURL : Avatar}
-                            className="w-10 min-w-[40px] min-h-[40px] hover:cursor-pointer"
+                            className="w-10 h-10 min-w-[40px] min-h-[40px] cursor-pointer drop-shadow-xl rounded-full"
                             alt="userprofile"
                             onClick={login}
                         />
+                    </div>
+                    <div>
+                        <p>New Item</p>
+                        <p>Logout</p>
                     </div>
                 </div>
             </div>
